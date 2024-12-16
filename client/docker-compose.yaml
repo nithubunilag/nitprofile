@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  app:
+    build: ./
+    restart: unless-stopped
+    env_file: ./.env
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    tty: true
+
+
+networks:
+  default:
+    name: nithub
+    external: false

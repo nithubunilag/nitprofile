@@ -1,0 +1,7 @@
+Work on the RequireAuthentication Middleware and make it more efficient
+
+
+TODO
+
+Write Documentation for all components using TSDoc and Storybook
+Write both unit and integration tests for all components
