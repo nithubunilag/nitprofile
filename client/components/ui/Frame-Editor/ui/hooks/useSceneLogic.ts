@@ -1,12 +1,8 @@
 import { makeToast } from "@/libs/react-toast"
 import { useCreateProgramNodesApi } from "@/services/programs/program-hooks/program-nodes"
 import { useAppSelector } from "@/state_management"
-import {
-    ICreateNodeOptions,
-    Scene,
-    convert_fabric_objects_to_nodes,
-    convert_node_to_fabric_object,
-} from "@frame-editor/logic"
+import { ICreateNodeOptions, Scene } from "@frame-editor/logic"
+import { fabric } from "fabric"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useSnapshotDimensions } from "."
@@ -52,6 +48,17 @@ export const useSceneLogic = () => {
         }
     }, [selectedProgram])
 
+    const getClientWidth = (node_type: "profile" | "certificate") => {
+        switch (node_type) {
+            case "profile":
+                return selectedProgram?.program.profileFrameWidth ?? ""
+            case "certificate":
+                return selectedProgram?.program.certificateFrameWidth ?? ""
+            default:
+                return frameImageRef?.current?.naturalWidth.toString()
+        }
+    }
+
     const initializeScene = useCallback(() => {
         const scene = new Scene({
             canvas_id: "frame_editor",
@@ -84,36 +91,35 @@ export const useSceneLogic = () => {
     const initializeObjects = useCallback(() => {
         const nodes = programFrame.nodes
 
-        if (!state.scene.canvas || !selectedProgram) return
+        if (!selectedProgram) return
 
         const node_type = localStorage.getItem("node_type") as "profile" | "certificate"
 
-        const frameWidth = () => {
-            switch (node_type) {
-                case "profile":
-                    return selectedProgram?.program.profileFrameWidth ?? ""
-                case "certificate":
-                    return selectedProgram?.program.certificateFrameWidth ?? ""
-            }
-        }
-
-        const clientWidth = parseInt(frameWidth() ?? "1000")
-
-        const canvasWidth = state.scene.canvas.getWidth()
-
-        const scaleFactor = Math.round(clientWidth / canvasWidth)
+        const clientWidth = parseInt(getClientWidth(node_type) ?? "0")
 
         for (let node of nodes) {
-            const obj = convert_node_to_fabric_object({
-                node,
-                scaleFactor,
-            })
-
-            obj && state.scene.canvas?.add(obj)
+            sceneRef.current?.convert_nodes_to_fabric_add_to_scene(node, clientWidth)
         }
 
         state.scene.canvas?.renderAll()
     }, [programFrame.nodes, selectedProgram, state.scene.canvas])
+
+    // const newcanvas = new fabric.Canvas("frame_editor", {
+    //     selection: false,
+    //     renderOnAddRemove: false,
+    // })
+
+    // useEffect(() => {
+    //     console.log(newcanvas, "canvas changed")
+    // }, [newcanvas])
+
+    useEffect(() => {
+        const newcanvas = new fabric.Canvas("frame_editor", {
+            selection: false,
+            renderOnAddRemove: false,
+        })
+        console.log(newcanvas, "canvas changed", newcanvas.getWidth(), 'canvas width')
+    }, [])
 
     const rescaleCanvas = (containerWidth: number, containerHeight: number) => {
         // Check if the image reference or canvas is not available
@@ -207,28 +213,13 @@ export const useSceneLogic = () => {
 
         if (!objects || !state.scene.canvas || !frameImageRef.current) return
 
-        const canvasWidth = state.scene.canvas.getWidth()
-
         const node_type = localStorage.getItem("node_type") as "profile" | "certificate"
 
-        const frameWidth = () => {
-            switch (node_type) {
-                case "profile":
-                    return selectedProgram?.program.profileFrameWidth ?? ""
-                case "certificate":
-                    return selectedProgram?.program.certificateFrameWidth ?? ""
-            }
-        }
+        const clientWidth = parseInt(getClientWidth(node_type) ?? "0")
 
-        const clientWidth = parseInt(frameWidth() ?? frameImageRef?.current?.naturalWidth.toString())
+        const nodes = sceneRef.current?.export_fabric_objects_to_nodes(objects, clientWidth)
 
-        const scaleFactor = Math.round(clientWidth / canvasWidth)
-
-        const nodes = convert_fabric_objects_to_nodes({
-            objects,
-            scaleFactor,
-        })
-
+        console.log({ nodes })
         const response = await handler({
             category: node_type,
             nodes: nodes,

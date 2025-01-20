@@ -1,3 +1,4 @@
+import { IPlaceholderTextNodeEntity } from "@/components/ui/Frame-Editor/logic"
 import { IUser } from "../auth/auth.interface"
 
 export interface IProgram {
@@ -60,7 +61,7 @@ export interface IAssignAdminToProgramPayload {
     payloadid: string
 }
 
-export interface IProgramNode {
+export type IProgramNode = IPlaceholderTextNodeEntity & {
     placeholder: boolean
     type: "image" | "text"
     x: number
@@ -77,7 +78,6 @@ export interface IProgramNode {
     font_size: string | null
     font_weight: string | null
     color: string | null
-    entity: string | null
     entity_key: string | null
 }
 

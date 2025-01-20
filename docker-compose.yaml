@@ -1,38 +1,50 @@
 version: "3.8"
+
 services:
-    app:
-        build: ./
+    client:
+        build:
+            context: ./client
+            dockerfile: Dockerfile
+        container_name: nitprofile_client
         restart: unless-stopped
-        env_file: ./.env
         ports:
-            - $PORT:$PORT
+            - "3000:3000"
         stdin_open: true
         tty: true
         volumes:
-            - .:/app
+            - ./client:/app
             - /app/node_modules
         depends_on:
-            - db
+            - api
 
-    db:
+    api:
+        build:
+            context: ./api
+            dockerfile: Dockerfile
+        container_name: nitprofile_backend
+        restart: unless-stopped
+        env_file: ./api/.env
+        ports:
+            - "8000:8000"
+        stdin_open: true
+        tty: true
+        volumes:
+            - ./api:/app
+            - /app/node_modules
+        depends_on:
+            - database
+
+    database:
         image: postgres
         restart: always
-        env_file: ./.env
         container_name: nitprofile_database
         ports:
-            - "5434:5432"
+            - "5432:5432"
         environment:
             PGDATA: /var/lib/postgresql/data/pgdata
-            POSTGRES_USER: root
-            POSTGRES_PASSWORD: rootpassword
-            POSTGRES_DB: nitprofile_db
-
-    adminer:
-        image: adminer
-        container_name: adminer
-        restart: always
-        ports:
-            - "8081:8080"  # Port changed to avoid conflict
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: yourpassword
+            POSTGRES_DB: nitprofile
 
 networks:
   default:

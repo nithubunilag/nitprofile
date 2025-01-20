@@ -1,35 +1,35 @@
 import { makeToast } from "@/libs/react-toast"
+import { DEFAULT_TEXT_NODE_VALUES } from "@frame-editor/logic"
 import { useSceneContext } from "@frame-editor/ui/hooks"
-import { DEFAULT_IMAGE_NODE_VALUES } from "@frame-editor/logic"
 import { ChangeEvent, useState } from "react"
+
+interface ITextProperties {
+    fontFamily: string
+    left: number
+    top: number
+    fontSize: number
+    fontWeight: string | number
+    fill: string
+    opacity: number
+    stroke: string
+}
 
 export const TextControls = () => {
     const { state } = useSceneContext()
 
     const { canvas, selectedItem } = state.scene
 
-    const item = selectedItem as fabric.Circle
+    const item = selectedItem as fabric.Text
 
-    interface IImageProperties {
-        fill: string
-        left: number
-        top: number
-        scale: number
-        radius: number
-        strokeWidth: number
-        stroke: string
-        opacity: number
-    }
-
-    const [imageProperties, setImageProperties] = useState<IImageProperties>({
-        fill: item.fill?.toString() ?? "#000",
-        left: item.left ?? DEFAULT_IMAGE_NODE_VALUES.x,
-        top: item.top ?? DEFAULT_IMAGE_NODE_VALUES.y,
-        radius: item.radius ?? DEFAULT_IMAGE_NODE_VALUES.radius,
-        strokeWidth: item.strokeWidth ?? 1,
-        stroke: item.stroke?.toString() ?? "1",
-        opacity: item.opacity ?? 1,
-        scale: item.scaleX ?? 1,
+    const [textProperties, setTextProperties] = useState<ITextProperties>({
+        fontFamily: item.fontFamily ?? DEFAULT_TEXT_NODE_VALUES.font_family,
+        left: item.left ?? DEFAULT_TEXT_NODE_VALUES.x,
+        top: item.top ?? DEFAULT_TEXT_NODE_VALUES.y,
+        fontSize: item.fontSize ?? DEFAULT_TEXT_NODE_VALUES.font_size,
+        fontWeight: item.fontWeight ?? DEFAULT_TEXT_NODE_VALUES.font_weight,
+        fill: item.fill?.toString() ?? DEFAULT_TEXT_NODE_VALUES.color,
+        stroke: item.stroke?.toString() ?? DEFAULT_TEXT_NODE_VALUES.stroke,
+        opacity: item.opacity ?? DEFAULT_TEXT_NODE_VALUES.opacity,
     })
 
     if (!canvas || !selectedItem) {
@@ -40,36 +40,16 @@ export const TextControls = () => {
         })
     }
 
-    const handleChangeRadius = (value: number) => {
-        if (!value) return
-
-        const activeObject = canvas.getActiveObject() as fabric.Circle
-
-        if (!activeObject) return
-
-        activeObject.set("radius", value)
-
-        activeObject.set("scaleX", 1)
-
-        activeObject.set("scaleY", 1)
-
-        const newValues = { ...imageProperties, radius: value, scale: 1 }
-
-        setImageProperties(newValues)
-
-        canvas.renderAll()
-    }
-
-    const handleChange = (key: keyof fabric.Object, value: number | string) => {
-        const activeObject = canvas.getActiveObject()
+    const handleChange = (key: keyof fabric.Text, value: number | string) => {
+        const activeObject = canvas.getActiveObject() as fabric.Text
 
         if (!activeObject) return
 
         activeObject.set(key, value)
 
-        const newValues = { ...imageProperties, [key]: value }
+        const newValues = { ...textProperties, [key]: value }
 
-        setImageProperties(newValues)
+        setTextProperties(newValues)
 
         canvas.renderAll()
     }
@@ -77,57 +57,51 @@ export const TextControls = () => {
     const options = [
         {
             name: "Font Family",
-            value: Math.round(imageProperties.radius * imageProperties.scale),
-            handleChange: (e: ChangeEvent<HTMLInputElement>) => handleChangeRadius(parseInt(e.target.value)),
+            value: textProperties.fontFamily,
+            handleChange: (e: ChangeEvent<HTMLInputElement>) => handleChange("fontFamily", e.target.value),
             placeholder: "100",
         },
         {
             name: "Font Size",
-            value: Math.round(imageProperties.radius * imageProperties.scale),
-            handleChange: (e: ChangeEvent<HTMLInputElement>) => handleChangeRadius(parseInt(e.target.value)),
-            placeholder: "100",
+            value: textProperties.fontSize,
+            handleChange: (e: ChangeEvent<HTMLInputElement>) => handleChange("fontSize", parseInt(e.target.value)),
+            placeholder: "10",
         },
         {
             name: "Font Weight",
-            value: Math.round(imageProperties.radius * imageProperties.scale),
-            handleChange: (e: ChangeEvent<HTMLInputElement>) => handleChangeRadius(parseInt(e.target.value)),
+            value: textProperties.fontWeight,
+            handleChange: (e: ChangeEvent<HTMLInputElement>) => handleChange("fontWeight", e.target.value),
             placeholder: "100",
         },
         {
             name: "Left",
-            value: imageProperties.left,
+            value: textProperties.left,
             handleChange: (e: ChangeEvent<HTMLInputElement>) => handleChange("left", parseInt(e.target.value)),
             placeholder: "20",
         },
         {
             name: "Top",
-            value: imageProperties.top,
+            value: textProperties.top,
             handleChange: (e: ChangeEvent<HTMLInputElement>) => handleChange("top", parseInt(e.target.value)),
             placeholder: "20",
         },
         {
             name: "Opacity",
-            value: imageProperties.opacity,
+            value: textProperties.opacity,
             handleChange: (e: ChangeEvent<HTMLInputElement>) => handleChange("opacity", parseInt(e.target.value)),
             placeholder: 1,
         },
         {
             name: "Fill",
-            value: imageProperties.fill,
+            value: textProperties.fill,
             handleChange: (e: ChangeEvent<HTMLInputElement>) => handleChange("fill", e.target.value),
             placeholder: "#aaa",
         },
         {
             name: "Stroke",
-            value: imageProperties.stroke,
+            value: textProperties.stroke,
             handleChange: (e: ChangeEvent<HTMLInputElement>) => handleChange("stroke", e.target.value),
             placeholder: "#000",
-        },
-        {
-            name: "Stroke Width",
-            value: imageProperties.strokeWidth,
-            handleChange: (e: ChangeEvent<HTMLInputElement>) => handleChange("left", parseInt(e.target.value)),
-            placeholder: 1,
         },
     ]
 

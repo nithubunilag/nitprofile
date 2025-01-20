@@ -127,7 +127,7 @@ const convert_node_to_fabric_object = (options: IConvertNodeToObjectOptions): fa
     }
 }
 
-const compute_image = (fabricObj: fabric.Circle, scaleFactor: number) => {
+export const compute_image = (fabricObj: fabric.Circle, scaleFactor: number) => {
     if (!fabricObj || !fabricObj.aCoords || !fabricObj.aCoords.tl || !fabricObj.aCoords.bl) return
 
     const scaledLeft = fabricObj.left! * scaleFactor
@@ -160,7 +160,7 @@ const compute_image = (fabricObj: fabric.Circle, scaleFactor: number) => {
     return result
 }
 
-const compute_text = (fabricObj: fabric.IText, scaleFactor: number) => {
+export const compute_text = (fabricObj: fabric.IText, scaleFactor: number) => {
     if (!fabricObj || !fabricObj.scaleX || !fabricObj.fontSize) return
 
     const scaledLeft = fabricObj.left! * scaleFactor
@@ -174,7 +174,7 @@ const compute_text = (fabricObj: fabric.IText, scaleFactor: number) => {
     }
 
     const styles = {
-        font_size: Math.round(fabricObj.fontSize * fabricObj.scaleX * scaleFactor),
+        font_size: Math.round(fabricObj.fontSize  * scaleFactor),
         font_weight: (fabricObj.fontWeight as string) ?? "bold",
         font_family: (fabricObj.fontFamily as string) ?? "Helvetica",
     }
@@ -205,7 +205,7 @@ const compute_text = (fabricObj: fabric.IText, scaleFactor: number) => {
     return result
 }
 
-const calculateACoords = (params: ICalculateACoordsParams) => {
+export const calculateACoords = (params: ICalculateACoordsParams) => {
     const { height, tl_x, tl_y, width } = params
 
     const tr_x = tl_x + width
@@ -222,7 +222,13 @@ const calculateACoords = (params: ICalculateACoordsParams) => {
 const getTextForPlaceholder = (item: IPlaceholderTextNodeEntity) => {
     switch (item.entity) {
         case "user":
-            return "{{USER_FIRSTNAME}}"
+            if (item.entityKey === "firstName") {
+                return "{{FIRST_NAME}}"
+            } else if (item.entityKey === "lastName") {
+                return "{{LAST_NAME}}"
+            } else {
+                return "{{USER_NAME}}"
+            }
         case "program":
             return "{{PROGRAM_NAME}}"
         case "date":
@@ -255,13 +261,15 @@ const DEFAULT_TEXT_NODE_VALUES = {
     font_size: 24,
     font_weight: "bold",
     color: "black",
+    stroke: "1",
+    opacity: 1,
 }
 
 export {
+    convert_fabric_objects_to_nodes,
+    convert_node_to_fabric_object,
     DEFAULT_CANVAS_VALUES,
     DEFAULT_IMAGE_NODE_VALUES,
     DEFAULT_TEXT_NODE_VALUES,
-    convert_fabric_objects_to_nodes,
-    convert_node_to_fabric_object,
     getTextForPlaceholder,
 }

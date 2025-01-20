@@ -6,6 +6,7 @@ import { useEffect } from "react"
 import { MdDelete } from "react-icons/md"
 import { ImageControls } from "./ImageControls"
 import { ToolbarButton } from "./ToolbarButton"
+import { TextControls } from "./TextControls"
 
 interface IToolbarProps {
     /**
@@ -58,7 +59,7 @@ export const Toolbar = (props: IToolbarProps) => {
                 mt: false, // middle top disable
                 mb: false, // midle bottom
                 ml: false, // middle left
-                mr: false, // I think you get it
+                mr: false, // 
             })
         }
     }
@@ -79,13 +80,24 @@ export const Toolbar = (props: IToolbarProps) => {
         },
 
         {
-            name: `{{"USER_NAME"}}`,
+            name: `{{"FIRST_NAME"}}`,
             handler: () =>
                 create_node({
                     nodeType: "placeholder",
                     entity: "user",
                     entityKey: "firstName",
-                    placeholderText: getTextForPlaceholder({ entity: "user", entityKey: "firstName" }),
+                    placeholderText: "{{FIRST_NAME}}",
+                }),
+        },
+
+        {
+            name: `{{"LAST_NAME"}}`,
+            handler: () =>
+                create_node({
+                    nodeType: "placeholder",
+                    entity: "user",
+                    entityKey: "lastName",
+                    placeholderText: "{{LAST_NAME}}",
                 }),
         },
 
@@ -141,7 +153,7 @@ export const Toolbar = (props: IToolbarProps) => {
                 </button>
             )}
 
-            {/* {selectedItem && selectedItem.type === "i-text" && <TextControls />} */}
+            {selectedItem && selectedItem.type === "i-text" && <TextControls />}
 
             <ConditionalComponent isMounted={!selectedItem}>
                 <div className="grid grid-cols-toolbar_buttons_grid gap-4">

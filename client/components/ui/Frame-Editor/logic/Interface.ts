@@ -1,3 +1,5 @@
+import { IProgramNode } from "@/services/programs/program.interface"
+
 type IPlaceholderTextNodeEntity =
     | {
           entity: "user"
@@ -71,7 +73,13 @@ interface INodeFactory<T = undefined> {
     fabricNode: T
 }
 
+interface IConvertNodeToObjectOptions {
+    node: IProgramNode
+    scaleFactor: number
+}
+
 export type {
+    IConvertNodeToObjectOptions,
     ICreateNodeOptions,
     IImageNode,
     INodeFactory,
