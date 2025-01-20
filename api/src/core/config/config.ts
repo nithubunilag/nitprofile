@@ -84,6 +84,7 @@ export const config = Object.freeze({
         dbHost: validatedEnvVars.DATABASE_HOST,
         dbName: validatedEnvVars.DATABASE_NAME,
         dbType: validatedEnvVars.DATABASE_TYPE as Dialect,
+        dbUseSsl: validatedEnvVars.DATABASE_USE_SSL  === 'true',
     },
 
     cloudinary: {

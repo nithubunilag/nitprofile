@@ -1,5 +1,5 @@
+import { config, logger } from "@/core"
 import { Redis, type RedisOptions } from "ioredis"
-import { logger, config } from "@/core"
 
 export class AppCacheManager extends Redis {
     public readonly TIME_TO_LIVE: number = config.cache.ttl
@@ -45,7 +45,14 @@ export class AppCacheManager extends Redis {
 }
 
 export const cache = new AppCacheManager({
-    port: config.cache.port,
-    password: config.cache.password,
-    host: config.cache.host,
+    host: "localhost",
+    port: 6379,
+    // password: "1234",
+    username: "default",
 })
+
+// export const cache = new AppCacheManager({
+//     port: config.cache.port,
+//     password: config.cache.password,
+//     host: config.cache.host,
+// })

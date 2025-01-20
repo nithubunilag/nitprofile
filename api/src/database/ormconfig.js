@@ -18,8 +18,7 @@ module.exports = {
             underscored: true,
         },
         dialect: "postgres",
-        ssl: true,
-        dialectOptions: { ssl: { require: true } },
+        ...(process.env.DATABASE_USE_SSL === "true" ? { ssl: true, dialectOptions: { ssl: { require: true } } } : {}),
     },
 
     production: {
@@ -37,7 +36,6 @@ module.exports = {
             underscored: true,
         },
         dialect: "postgres",
-        ssl: true,
-        dialectOptions: { ssl: { require: true } },
+        ...(process.env.DATABASE_USE_SSL === "true" ? { ssl: true, dialectOptions: { ssl: { require: true } } } : {}),
     },
 }

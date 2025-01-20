@@ -52,7 +52,15 @@ class RegisterProgramUsers {
 
                 const convertedJson = (await csvToJson.fieldDelimiter(",").getJsonFromCsv(files.csv.tempFilePath)) as IProgramUser[]
 
-                usersToCreate.push(...convertedJson)
+                const trimmedUsersToCreate = convertedJson.map((user) => {
+                    const trimmedUser: IProgramUser = { ...user }
+                    ;(Object.keys(user) as Array<keyof IProgramUser>).forEach((key) => {
+                        trimmedUser[key] = typeof user[key] === "string" ? user[key].trim() : user[key]
+                    })
+                    return trimmedUser
+                })
+
+                usersToCreate.push(...trimmedUsersToCreate)
             }
 
             const sendMailPayload: ISendUsersEmail[] = []
@@ -80,15 +88,18 @@ class RegisterProgramUsers {
                     }
 
                     if (!existingUser) {
-                        existingUser = await create_user._create_single_user({
-                            email: user.email,
-                            firstName: user.firstName,
-                            lastName: user.lastName,
-                            password: config.userDefaultPassword,
-                            role: "USER",
-                        })
+                        existingUser = await create_user._create_single_user(
+                            {
+                                email: user.email,
+                                firstName: user.firstName,
+                                lastName: user.lastName,
+                                password: config.userDefaultPassword,
+                                role: "USER",
+                            },
+                            dbTransaction,
+                        )
 
-                        logger.info(`User with ID ${existingUser.id} created successfully`)
+                        logger.info(`User with ID ${existingUser.firstName} created successfully`)
                     }
 
                     createdUsers.push(existingUser)
@@ -100,6 +111,8 @@ class RegisterProgramUsers {
                         },
                         { transaction: dbTransaction },
                     )
+
+                    logger.info(`User with ID ${existingUser.firstName} added to Program with ID ${program.name} successfully`)
 
                     const inviteToken = generateRandStr(64)
 

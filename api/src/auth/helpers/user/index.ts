@@ -1,7 +1,8 @@
-import { AppMessages } from "@/core/common"
-import { BadRequestError, hashData, logger, sequelize } from "@/core"
 import type { ICreateUser } from "@/auth/interfaces"
 import { Users } from "@/auth/model/user.model"
+import { BadRequestError, hashData, logger, sequelize } from "@/core"
+import { AppMessages } from "@/core/common"
+import { Transaction } from "sequelize"
 
 class CreateUser {
     constructor(private readonly dbUser: typeof Users) {}
@@ -12,7 +13,7 @@ class CreateUser {
      * @returns {Promise<Users>} - The created user.
      * @throws {BadRequestError} - If the provided email already exists in the database.
      */
-    public _create_single_user = async (input: ICreateUser) => {
+    public _create_single_user = async (input: ICreateUser, transaction?: Transaction) => {
         const { email, password } = input
 
         const userExists = await this.dbUser.findOne({
@@ -25,7 +26,7 @@ class CreateUser {
         const hashPassword = await hashData(password)
 
         // Create the User
-        const newUser = await this.dbUser.create({ ...input, password: hashPassword })
+        const newUser = await this.dbUser.create({ ...input, password: hashPassword }, { transaction })
 
         logger.info(`User with ID ${newUser.id} created successfully`)
 
